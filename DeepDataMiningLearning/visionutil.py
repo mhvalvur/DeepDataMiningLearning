@@ -68,7 +68,7 @@ def read_image(image, use_pil=True, use_cv2=False, rgb=True, output_format='nump
         #Read the image to numpy HWC format uint8
         if use_pil:
             #https://pillow.readthedocs.io/en/stable/reference/Image.html
-            image = Image.open(filename)
+            image = Image.open('/Users/markusvalvur/Projects/cmpe258/DeepDataMiningLearning/sampledata/bus.jpg')
             if rgb:
                 image = image.convert('RGB')
                 size = image.size #size in pixels, as a 2-tuple: (width, height)
