@@ -8,7 +8,7 @@ from tqdm.auto import tqdm
 import numpy as np
 import json
 import evaluate
-#from DeepDataMiningLearning.hfvision_inference import save_coco_annotation_file_images
+#from hfvision_inference import save_coco_annotation_file_images
 from tqdm.contrib import tzip
 
 # format annotations the same as for training, no need for data augmentation

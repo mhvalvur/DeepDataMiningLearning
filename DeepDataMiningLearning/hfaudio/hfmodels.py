@@ -25,9 +25,9 @@ import shutil
 import re
 import json
 
-from DeepDataMiningLearning.hfaudio.hfdata import create_vocabulary_from_data
-from DeepDataMiningLearning.hfaudio.hfutil import valkey, TrustRemoteCode, logger
-from DeepDataMiningLearning.hfaudio.hfmodels_custom import MyWave2Vec2ClassificationCTC
+from hfaudio.hfdata import create_vocabulary_from_data
+from hfaudio.hfutil import valkey, TrustRemoteCode, logger
+from hfaudio.hfmodels_custom import MyWave2Vec2ClassificationCTC
 
 unk_token="[UNK]"
 pad_token="[PAD]"

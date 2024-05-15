@@ -8,14 +8,14 @@ import collections
 import numpy as np
 import random
 
-from DeepDataMiningLearning.hfaudio.hfdata import saveaudio_tofile
-from DeepDataMiningLearning.hfaudio.hfmodels import loaddefaultmodel_fromname
+from hfaudio.hfdata import saveaudio_tofile
+from hfaudio.hfmodels import loaddefaultmodel_fromname
 from transformers import AutoProcessor, SeamlessM4Tv2Model
 import scipy
 
-from DeepDataMiningLearning.hfaudio.hfdata import gettestdata
+from hfaudio.hfdata import gettestdata
 from datasets import DatasetDict
-from DeepDataMiningLearning.hfaudio.hfutil import deviceenv_set, download_youtube, clip_video, load_json, get_device
+from hfaudio.hfutil import deviceenv_set, download_youtube, clip_video, load_json, get_device
 import os
 # from huggingface_hub import login
 # login()

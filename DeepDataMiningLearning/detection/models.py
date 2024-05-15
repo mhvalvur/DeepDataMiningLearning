@@ -5,8 +5,8 @@ from torchvision.models import get_model, get_model_weights, get_weight, list_mo
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
-from DeepDataMiningLearning.detection.modules.yolomodels import create_yolomodel, freeze_yolomodel
-from DeepDataMiningLearning.detection.modeling_rpnfasterrcnn import CustomRCNN
+from detection.modules.yolomodels import create_yolomodel, freeze_yolomodel
+from detection.modeling_rpnfasterrcnn import CustomRCNN
 import os
 
 try:

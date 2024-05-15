@@ -157,7 +157,7 @@ Install DeepDataMiningLearning on Mac
 
 .. code-block:: console
 
-  kaikailiu@Kaikais-MacBook-Pro MyRepo % git clone https://github.com/lkk688/DeepDataMiningLearning.git
+  kaikailiu@Kaikais-MacBook-Pro MyRepo % git clone https://github.com/lkk688/git
 
 Streamlit
 ---------

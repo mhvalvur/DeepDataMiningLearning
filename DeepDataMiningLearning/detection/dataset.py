@@ -2,17 +2,17 @@ import torch
 import torchvision
 import numpy as np
 from torchvision import datasets, transforms
-from DeepDataMiningLearning.detection.coco_utils import get_coco
+from detection.coco_utils import get_coco
 import os
 from typing import Any, Callable, List, Optional, Tuple
 from PIL import Image
 import csv
-from DeepDataMiningLearning.detection.dataset_kitti import KittiDataset
-from DeepDataMiningLearning.detection.dataset_waymococo import WaymoCOCODataset
+from detection.dataset_kitti import KittiDataset
+from detection.dataset_waymococo import WaymoCOCODataset
 from collections import defaultdict
 
 import torch
-import DeepDataMiningLearning.detection.transforms as reference_transforms
+import detection.transforms as reference_transforms
 
 
 WrapNewDict = False
@@ -217,7 +217,7 @@ def get_waymococodataset(is_train, is_val, args):
     #mykitti = datasets.Kitti(root=rootPath, train= True, transform = get_transform(is_train, args), target_transform = None, download = False)
 
 import yaml
-from DeepDataMiningLearning.detection.dataset_yolo import YOLODataset
+from detection.dataset_yolo import YOLODataset
 def get_yolodataset(is_train, is_val, args):
     rootPath=args.data_path #'/data/cmpe249-fa23/coco/'
     #annotation=args.annotationfile #'/data/cmpe249-fa23/coco/train2017.txt'
@@ -244,7 +244,7 @@ def get_yolodataset(is_train, is_val, args):
     num_classes = yolodataset.numclass
     return yolodataset, num_classes
 
-from DeepDataMiningLearning.detection import utils
+from detection import utils
 class args:
     data_path = '/data/cmpe249-fa23/coco/' #'/data/cmpe249-fa23/WaymoCOCO/' #'/data/cmpe249-fa23/coco/'
     annotationfile = '/data/cmpe249-fa23/coco/train2017.txt'

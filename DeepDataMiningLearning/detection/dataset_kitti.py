@@ -2,8 +2,8 @@ import torch
 import torchvision
 import numpy as np
 from torchvision import datasets, transforms
-#from DeepDataMiningLearning.detection.coco_utils import get_coco
-from DeepDataMiningLearning.detection import trainutils
+#from detection.coco_utils import get_coco
+from detection import trainutils
 import os
 from typing import Any, Callable, List, Optional, Tuple
 from PIL import Image
@@ -371,7 +371,7 @@ def countobjects(alltypes):
 
 if __name__ == "__main__":
     #import matplotlib.pyplot as plt
-    import DeepDataMiningLearning.detection.transforms as T
+    import detection.transforms as T
     def get_transformsimple(train):
         transforms = []
         transforms.append(T.PILToTensor())

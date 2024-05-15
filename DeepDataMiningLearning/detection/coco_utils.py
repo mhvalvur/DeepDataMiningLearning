@@ -3,7 +3,7 @@ import os
 import torch
 import torch.utils.data
 import torchvision
-import DeepDataMiningLearning.detection.transforms as T
+import detection.transforms as T
 from pycocotools import mask as coco_mask
 from pycocotools.coco import COCO
 
@@ -234,7 +234,7 @@ def get_coco(root, image_set, transforms, mode="instances", use_v2=False, with_m
 
     return dataset
 
-#from DeepDataMiningLearning.detection.modules.utils import xyxy2xywh
+#from detection.modules.utils import xyxy2xywh
 from torchvision.ops import box_convert
 def convert_bbbox2coco(bbox, source_format='pascal_voc', height=None, width=None, output_np=True):
     if source_format=='pascal_voc': #[x_min, y_min, x_max, y_max] in pixels

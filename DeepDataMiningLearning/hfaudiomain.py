@@ -9,11 +9,11 @@ from accelerate import Accelerator
 from tqdm.auto import tqdm
 import datetime
 
-from DeepDataMiningLearning.hfaudio.hfutil import valkey, deviceenv_set, get_device
-from DeepDataMiningLearning.hfaudio.hfdata import savedict2file, load_audiodataset, getlabels_classifier, getlabels_asr, dataset_removecharacters, dataset_castsamplingrate, dataset_preprocessing, filter_datasetlength
-from DeepDataMiningLearning.hfaudio.hfmodels import loadmodel, multilingual_tokenizer, load_featureextractor_model, savemodels, load_hfcheckpoint, save_adapterweights
-from DeepDataMiningLearning.hfaudio.evaluateutil import myEvaluator, evaluate_dataset
-from DeepDataMiningLearning.hfaudio.trainutil import get_datacollator, get_myoptimizer
+from hfaudio.hfutil import valkey, deviceenv_set, get_device
+from hfaudio.hfdata import savedict2file, load_audiodataset, getlabels_classifier, getlabels_asr, dataset_removecharacters, dataset_castsamplingrate, dataset_preprocessing, filter_datasetlength
+from hfaudio.hfmodels import loadmodel, multilingual_tokenizer, load_featureextractor_model, savemodels, load_hfcheckpoint, save_adapterweights
+from hfaudio.evaluateutil import myEvaluator, evaluate_dataset
+from hfaudio.trainutil import get_datacollator, get_myoptimizer
 
 def saveargs2file(args, trainoutput):
     args_dict={}

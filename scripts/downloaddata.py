@@ -1,5 +1,5 @@
 
-from DeepDataMiningLearning.networkutil import downloadurls
+from networkutil import downloadurls
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss, MSELoss
 from transformers import Wav2Vec2PreTrainedModel, Wav2Vec2Model, Wav2Vec2BertPreTrainedModel, Wav2Vec2BertModel
-from DeepDataMiningLearning.hfaudio.hfutil import valkey, TrustRemoteCode
+from hfaudio.hfutil import valkey, TrustRemoteCode
 
 @dataclass
 class MyModelOutput(ModelOutput):

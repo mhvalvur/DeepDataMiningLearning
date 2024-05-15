@@ -8,12 +8,12 @@ import torch.utils.data
 import torchvision
 import torchvision.models.detection
 
-from DeepDataMiningLearning.detection import utils
-from DeepDataMiningLearning.detection.trainutils import create_aspect_ratio_groups, GroupedBatchSampler
+from detection import utils
+from detection.trainutils import create_aspect_ratio_groups, GroupedBatchSampler
 
-from DeepDataMiningLearning.detection.dataset import get_dataset #get_cocodataset, get_kittidataset, get_transform
-from DeepDataMiningLearning.detection.models import create_detectionmodel #get_torchvision_detection_models, modify_fasterrcnnheader
-from DeepDataMiningLearning.detection.myevaluator import simplemodelevaluate, modelevaluate
+from detection.dataset import get_dataset #get_cocodataset, get_kittidataset, get_transform
+from detection.models import create_detectionmodel #get_torchvision_detection_models, modify_fasterrcnnheader
+from detection.myevaluator import simplemodelevaluate, modelevaluate
 
 try:
     from torchinfo import summary

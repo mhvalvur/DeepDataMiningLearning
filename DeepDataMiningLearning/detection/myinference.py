@@ -10,7 +10,7 @@ from torchvision.models import get_model, get_model_weights, get_weight, list_mo
 from torchvision.io.image import read_image
 from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import to_pil_image
-from DeepDataMiningLearning.detection.models import create_detectionmodel, get_torchvision_detection_models, load_trained_model
+from detection.models import create_detectionmodel, get_torchvision_detection_models, load_trained_model
 import numpy as np
 
 try:
@@ -220,8 +220,8 @@ def draw_boxes(boxes, classes, labels, image):
     return image
 
 
-from DeepDataMiningLearning.detection.models import load_checkpoint
-from DeepDataMiningLearning.detection.modeling_rpnfasterrcnn import CustomRCNN
+from detection.models import load_checkpoint
+from detection.modeling_rpnfasterrcnn import CustomRCNN
 from torchvision.transforms.functional import pil_to_tensor, to_pil_image
 import torchvision.transforms as transforms
 from PIL import Image, ImageDraw

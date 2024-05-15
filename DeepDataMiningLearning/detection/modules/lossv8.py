@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from DeepDataMiningLearning.detection.modules.tal import TaskAlignedAssigner, dist2bbox, make_anchors, bbox2dist
-from DeepDataMiningLearning.detection.modules.metrics import bbox_iou
-from DeepDataMiningLearning.detection.modules.utils import xywh2xyxy
+from detection.modules.tal import TaskAlignedAssigner, dist2bbox, make_anchors, bbox2dist
+from detection.modules.metrics import bbox_iou
+from detection.modules.utils import xywh2xyxy
 
 #ref: https://github.com/ultralytics/ultralytics/blob/main/ultralytics/utils/loss.py
 

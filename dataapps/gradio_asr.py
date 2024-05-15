@@ -5,7 +5,7 @@ import numpy as np
 #gradio gradio_asr.py
 
 #https://www.gradio.app/guides/real-time-speech-recognition
-from DeepDataMiningLearning.hfaudio.inference import MyAudioInference
+from hfaudio.inference import MyAudioInference
 import os
 model_name = "facebook/wav2vec2-large-robust-ft-libri-960h" #"facebook/seamless-m4t-v2-large" #
 task = "audio-asr"

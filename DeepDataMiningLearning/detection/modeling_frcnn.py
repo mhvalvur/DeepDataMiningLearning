@@ -2566,7 +2566,7 @@ def HF_inference(model, image):
     # image.save("output/ImageDraw.png")
 
 import requests
-from DeepDataMiningLearning.detection.plotutils import draw_objectdetection_predboxes, pixel_values2img
+from plotutils import draw_objectdetection_predboxes, pixel_values2img
 #https://github.com/huggingface/transformers/tree/main/examples/research_projects/visual_bert
 if __name__ == "__main__":
     #test frcnn

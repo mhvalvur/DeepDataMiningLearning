@@ -20,7 +20,7 @@ from sklearn.model_selection import train_test_split
 from tqdm.auto import tqdm
 
 import functools
-from DeepDataMiningLearning.hfaudio.hfutil import valkey, TrustRemoteCode
+from hfaudio.hfutil import valkey, TrustRemoteCode
 
 def savedict2file(data_dict, filename):
     # save vocab dict to be loaded into tokenizer

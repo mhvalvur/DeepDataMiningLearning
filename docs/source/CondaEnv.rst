@@ -52,7 +52,7 @@ Popular packages
    conda install pandas
    conda update -n base -c defaults conda
    #https://anaconda.cloud/intel-optimized-packages
-   git clone https://github.com/lkk688/DeepDataMiningLearning.git
+   git clone https://github.com/lkk688/git
    git clone https://github.com/lkk688/WaymoObjectDetection.git
    git clone https://github.com/lkk688/MultiModalDetector.git
    #if you have previous failed installations, you can clean conda:

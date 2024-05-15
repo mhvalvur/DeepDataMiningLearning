@@ -40,12 +40,12 @@ from transformers import AutoConfig, AutoImageProcessor, AutoModelForImageClassi
     AutoModelForDepthEstimation, AutoModelForObjectDetection, SchedulerType, get_scheduler
 from transformers import DefaultDataCollator, Trainer, TrainingArguments
 from time import perf_counter
-from DeepDataMiningLearning.visionutil import get_device, saveargs2file, load_ImageNetlabels, read_image
+from visionutil import get_device, saveargs2file, load_ImageNetlabels, read_image
 import requests
 import cv2
 import albumentations#pip install albumentations
-from DeepDataMiningLearning.detection.dataset_hf import HFCOCODataset, check_boxsize
-from DeepDataMiningLearning.detection.plotutils import draw2pil, pixel_values2img, draw_objectdetection_predboxes, draw_objectdetection_results
+from detection.dataset_hf import HFCOCODataset, check_boxsize
+from detection.plotutils import draw2pil, pixel_values2img, draw_objectdetection_predboxes, draw_objectdetection_results
 
 logger = get_logger(__name__)
 
@@ -883,7 +883,7 @@ def trainmain():
                 tokenizer=image_processor,
                 data_collator=collate_fn,
             )
-        from DeepDataMiningLearning.hfaudio.hfmodels import load_hfcheckpoint
+        from hfaudio.hfmodels import load_hfcheckpoint
         checkpoint = load_hfcheckpoint(args.resume_from_checkpoint)
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
         trainer.save_model()

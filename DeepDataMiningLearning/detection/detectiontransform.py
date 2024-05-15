@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from torch import Tensor
 #from torchvision.io.image import read_image
 from PIL import Image
-import DeepDataMiningLearning.detection.transforms as T
+import detection.transforms as T
 
 def max_by_axis(the_list: List[List[int]]) -> List[int]:
     maxes = the_list[0]#[[3, 800, 1295]] -> [3, 800, 1295]
@@ -308,7 +308,7 @@ def test_imagetransform(images, target, image_mean=[0.485, 0.456, 0.406], image_
 
 if __name__ == "__main__":
     #imgpath = "../../sampledata/sjsupeople.jpg"
-    imgpath = "/home/010796032/MyRepo/DeepDataMiningLearning/sampledata/sjsupeople.jpg"#"../../sampledata/sjsupeople.jpg"
+    #imgpath = "/home/010796032/MyRepo/DeepDataMiningLearning/sampledata/sjsupeople.jpg"#"../../sampledata/sjsupeople.jpg"
     image = Image.open(imgpath) #PIL image
 
     image_transfunc=get_transformsimple(train=True)
