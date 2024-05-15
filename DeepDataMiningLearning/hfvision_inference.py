@@ -24,9 +24,9 @@ from torchvision.transforms import (
 import albumentations#pip install albumentations
 from time import perf_counter
 
-from DeepDataMiningLearning.visionutil import get_device, saveargs2file, load_ImageNetlabels, read_image
-from DeepDataMiningLearning.hfvisionmain import load_visionmodel, load_dataset
-from DeepDataMiningLearning.detection.models import create_detectionmodel
+from visionutil import get_device, saveargs2file, load_ImageNetlabels, read_image
+from hfvisionmain import load_visionmodel, load_dataset
+from detection.models import create_detectionmodel
 
 #tasks: "depth-estimation", "image-classification", "object-detection"
 class MyVisionInference():
@@ -191,6 +191,181 @@ class MyVisionInference():
         predmax_confidence = float(predictions[predmax_idx])
         print(f"predmax_idx: {predmax_idx}, predmax_label: {predmax_label}, predmax_confidence: {predmax_confidence}")
         return confidences
+
+class MyVisionInferenceUpdated():
+    def __init__(self, model_name, model_path="", model_type="huggingface", task="image-classification", cache_dir="./output", gpuid='0', scale='x') -> None:
+        self.cache_dir = cache_dir
+        self.model_name = model_name
+        self.model_type = model_type
+        #self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device, useamp = get_device(gpuid=gpuid, useamp=False)
+        self.task = task
+        self.model_name = model_name
+        self.model = None
+        self.image_processor = None
+        self.transforms = None
+        self.id2label = None
+        if isinstance(model_name, str) and model_type=="huggingface":
+            #os.environ['HF_HOME'] = cache_dir #'~/.cache/huggingface/'
+            if model_path and os.path.exists(model_path):
+                model_name_or_path = model_path
+            else:
+                model_name_or_path = model_name
+            self.model, self.image_processor = load_visionmodel(model_name_or_path = model_name_or_path, task=task, load_only=True, labels=None, mycache_dir=cache_dir, trust_remote_code=True)
+            self.id2label = self.model.config.id2label
+        elif isinstance(model_name, str) and task=="image-classification":#torch model
+            self.model = torch.hub.load('pytorch/vision:v0.6.0', model_name, pretrained=True) #'resnet18'
+            labels=load_ImageNetlabels(filepath='sampledata/imagenet_labels.txt')
+            self.id2label = {str(i): label for i, label in enumerate(labels)}
+        elif isinstance(model_name, str) and task=="object-detection":#torch model
+            self.model, self.image_processor, labels = create_detectionmodel(modelname=model_name, num_classes=None, ckpt_file=model_path, device=self.device, scale=scale)
+            self.id2label = {str(i): label for i, label in enumerate(labels)}
+        elif isinstance(model_name, str) and task=="depth-estimation":#torch model
+            #https://pytorch.org/hub/intelisl_midas_v2/
+            #model_names: "MiDaS_small", "DPT_Hybrid", "DPT_Large"
+            self.model = torch.hub.load('intel-isl/MiDaS', model_name, pretrained=True)
+            transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
+            self.transforms = transforms.dpt_transform #.small_transform resize(384,) Normalized
+
+        self.model=self.model.to(self.device)
+        self.model.eval()
+    
+    def mypreprocess(self, inp):
+        # define transformations
+        preprocess_transform = transforms.Compose([
+            transforms.Resize((224, 224)),  # resize images to (224, 224)
+            transforms.ToTensor(),           # image to tensor
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
+        ])
+
+        # apply transformations
+        inp = preprocess_transform(inp)
+
+        # batch dimension
+        inp = inp.unsqueeze(0)
+
+        return inp
+
+    def __call__(self, image):
+        self.image, self.org_sizeHW = read_image(image, use_pil=True, use_cv2=False, output_format='numpy', plotfig=False)
+        print(f"Shape of the NumPy array: {self.image.shape}")
+        #HWC numpy (427, 640, 3)
+        if self.image_processor is not None and self.model_type=="huggingface":
+            inputs = self.image_processor(self.image, return_tensors="pt").pixel_values
+            print(inputs.shape) #torch.Size([1, 3, 224, 224]) [1, 3, 350, 518]
+        elif self.image_processor is not None:
+            inputs = self.image_processor(self.image) #BCHW for tensor
+        else:
+            inputs = self.mypreprocess(self.image)
+            print(inputs.shape) #torch.Size([1, 3, 384, 576])
+        inputs = inputs.to(self.device) #BCHW
+
+        start_time = perf_counter()
+        with torch.no_grad():
+            outputs = self.model(inputs) #output: [1, 84, 5880] 84=4(boxes)+80(classes)
+        end_time = perf_counter()
+        print(f'Elapsed inference time: {end_time-start_time:.3f}s')
+        self.inputs = inputs
+        
+        results = None
+        if self.task=="image-classification":
+            results = self.classification_postprocessing(outputs) #return confidence dicts
+        elif self.task=="depth-estimation":
+            results = self.depth_postprocessing(outputs, recolor=True) #return PIL image
+        elif self.task=="object-detection":
+            results = self.objectdetection_postprocessing(outputs) #return PIL image
+        return results
+    
+    def objectdetection_postprocessing(self, outputs, threshold=0.3):
+        target_sizes = torch.tensor([self.org_sizeHW]) #(640, 427)=> [[427, 640]]
+        if self.model_type == "huggingface":
+            results = self.image_processor.post_process_object_detection(outputs, threshold=threshold, target_sizes=target_sizes)[0] #'scores'[30], 'labels', 'boxes'[30,4]
+        else: #torch model
+            imgsize = self.inputs.shape[2:] #640, 480 HW
+            results_list = self.image_processor.postprocess(preds=outputs, newimagesize=imgsize, origimageshapes=target_sizes)
+            #result: List[Dict[str, Tensor]]: resdict["boxes"], resdict["scores"], resdict["labels"]
+            #bounding boxes in (xmin, ymin, xmax, ymax) format
+            results = results_list[0]
+        
+        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+            box = [round(i, 2) for i in box.tolist()] #[471.16, 209.09, 536.17, 347.85]#[xmin, ymin, xmax, ymax]
+            print(
+                f"Detected {self.id2label[str(int(label.item()))]} with confidence "
+                f"{round(score.item(), 3)} at location {box}"
+            )
+        pilimage=Image.fromarray(self.image)#numpy HWC
+        draw = ImageDraw.Draw(pilimage)
+        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+            box = [round(i, 2) for i in box.tolist()]
+            x, y, x2, y2 = tuple(box)
+            draw.rectangle((x, y, x2, y2), outline="red", width=1) #[xmin, ymin, xmax, ymax]
+            draw.text((x, y), self.id2label[str(int(label.item()))], fill="white")
+        pilimage.save("output/ImageDraw.png")
+        return pilimage
+
+    def depth_postprocessing(self, outputs, recolor=True):
+        if self.model_type=="huggingface":
+            predicted_depth = outputs.predicted_depth #[1, 416, 640], [1, 384, 384]
+        else:
+            predicted_depth  = outputs
+        # interpolate to original size
+        #The input dimensions are interpreted in the form: mini-batch x channels x [optional depth] x [optional height] x width.
+        predicted_depth_input = predicted_depth.unsqueeze(1) #[1, 1, 384, 576]
+
+        #read the height/width from image's shape
+        target_size = self.org_sizeHW
+        
+        #The input dimensions are interpreted in the form: mini-batch x channels x [optional depth] x [optional height] x width.
+        prediction = torch.nn.functional.interpolate(
+            predicted_depth_input,
+            size=target_size,#(H=427, W=640)
+            mode="bicubic", #'bilinear', uses a bicubic interpolation algorithm to compute the values of the new tensor
+            align_corners=False,
+        ) #[1, 1, 427, 640]
+        #output = prediction.squeeze().cpu().numpy() #[427, 640]
+        #formatted = (output * 255 / np.max(output)).astype("uint8")
+        depth = (prediction - prediction.min()) / (prediction.max() - prediction.min()) * 255.0
+        formatted = depth.squeeze().cpu().numpy().astype(np.uint8)
+        print(formatted.shape) #(427, 640)
+        if recolor:
+            #Recolor the depth map from grayscale to colored
+            #normalized_image = image.astype(np.uint8)
+            formatted = cv2.applyColorMap(formatted, cv2.COLORMAP_HOT)[:, :, ::-1]
+            print(formatted.shape) #(427, 640, 3)
+    
+        depth = Image.fromarray(formatted)
+        #depth.show()
+        depth.save("data/depth_testresult.jpg") 
+        return depth
+
+    def classification_postprocessing(self, outputs):
+        if self.model_type=="huggingface":
+            logits = outputs.logits #torch.Size([1, 1000])
+        else:
+            logits = outputs
+        predictions = torch.nn.functional.softmax(logits[0], dim=0) #[1000]
+        #print(predictions.shape) #torch.Size([1000])
+        predictions = predictions.cpu().numpy()
+        confidences = {self.id2label[i]: float(predictions[i]) for i in range(len(self.id2label))} #len=999
+
+        predmax_idx = np.argmax(predictions, axis=-1)
+        predmax_label = self.id2label[predmax_idx]
+        predmax_confidence = float(predictions[predmax_idx])
+        print(f"predmax_idx: {predmax_idx}, predmax_label: {predmax_label}, predmax_confidence: {predmax_confidence}")
+        return confidences
+
+import torch.quantization
+
+class MyVisionInferenceQuantized(MyVisionInferenceUpdated):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def quantize_model(self):
+        self.model = torch.quantization.quantize_dynamic(
+            self.model.to(torch.device('cpu')),  # CPU for quantization
+            {torch.nn.Linear},  # layers to quantize
+            dtype=torch.qint8  # quantization dtype
+        )
 
 def vision_inferencetest(model_name_or_path, task="image-classification", mycache_dir=None):
 
@@ -640,9 +815,34 @@ def MyVisionInferencetest(task="object-detection", mycache_dir=None):
     confidences = myinference(imagepath)
     print(confidences)
 
+def MyVisionInferencetestUpdated(task="object-detection", mycache_dir=None):
+
+    url = 'https://huggingface.co/nielsr/convnext-tiny-finetuned-eurostat/resolve/main/forest.png'
+    image = Image.open(requests.get(url, stream=True).raw)
+    imagepath='./sampledata/bus.jpg'
+    #inference
+    im0 = cv2.imread(imagepath) #(1080, 810, 3)
+    imgs = [im0]
+
+    #myinference = MyVisionInferenceUpdated(model_name="yolov8", model_path="/data/cmpe249-fa23/modelzoo/yolov8n_statedicts.pt", task=task, model_type="torch", cache_dir=mycache_dir, gpuid='2', scale='n')
+    quantized_inference = MyVisionInferenceQuantized(model_name="yolov8", model_path="/data/cmpe249-fa23/modelzoo/yolov8n_statedicts.pt", task=task, model_type="torch", cache_dir=mycache_dir, gpuid='2', scale='n')
+    quantized_inference.quantize_model()
+    confidences = quantized_inference(imagepath)
+    print(confidences)
+
 if __name__ == "__main__":
     #"nielsr/convnext-tiny-finetuned-eurostat"
     #"google/bit-50"
     #"microsoft/resnet-50"
+    print("Original Object Detection")
+    print("##################################################################################")
+    print()
     MyVisionInferencetest(task="object-detection", mycache_dir=None)
+    print("^^^^^ THIS IS FOR ORIGINAL OBJECT DETECTION PROVIDED")
+    print()
+    print("My Updated Object Detection")
+    print("##################################################################################")
+    print()
+    MyVisionInferencetestUpdated(task="object-detection", mycache_dir=None)
+    print("^^^^^ THIS IS FOR MY UPDATED OBJECT DETECTION")
     #test_inference()
