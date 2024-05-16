@@ -1,3 +1,8 @@
+Please note:
+- File paths were updated in yolomodels.py and visionutil.py
+- "DeepDataMiningLearning" was removed from import statements in order to run locally
+- Please contact me if there are any issues running my code
+
 # DeepDataMiningLearning
 Data mining, machine learning, and deep learning sample codes for SJSU CMPE255 Data Mining ([Fall2023 SJSU Official Syllabus](https://sjsu.campusconcourse.com/view_syllabus?course_id=22871&public_mode=1)) and CMPE258 Deep Learning ([Fall2023 SJSU Official Syllabus](https://sjsu.campusconcourse.com/view_syllabus?course_id=26399&public_mode=1)).
 * Some google colab examples need SJSU google account to view)
